@@ -1,0 +1,7 @@
+a = 4
+print a
+lock
+b = 789
+print b
+unlock
+end

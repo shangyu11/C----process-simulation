@@ -1,0 +1,75 @@
+# depslib dependency file v1.0
+1414849655 source:c:\users\lenovo\desktop\project-08\main.cpp
+	<string>
+	<iostream>
+	<vector>
+	<cstdio>
+	<fstream>
+	<sstream>
+	"class-08.h"
+
+1414830994 c:\users\lenovo\desktop\project-08\project-08.h
+	<iostream>
+	<cstdio>
+	<cstring>
+	<algorithm>
+	<stdlib.h>
+	<cmath>
+	<queue>
+	<vector>
+	<stack>
+	<set>
+
+1414849310 c:\users\lenovo\desktop\project-08\class-08.h
+	<vector>
+	<map>
+	<string>
+	<iostream>
+
+1414850357 source:c:\users\lenovo\desktop\project-08\class-08.cpp
+	<iostream>
+	<cstdio>
+	<cstring>
+	<algorithm>
+	<stdlib.h>
+	<cmath>
+	<queue>
+	<vector>
+	<stack>
+	<set>
+	<cmath>
+	<sstream>
+	<fstream>
+	"class-08.h"
+
+1414854677 source:c:\users\administrator\desktop\project-08\main.cpp
+	<string>
+	<iostream>
+	<vector>
+	<cstdio>
+	<fstream>
+	<sstream>
+	"class-08.h"
+
+1414849312 c:\users\administrator\desktop\project-08\class-08.h
+	<vector>
+	<map>
+	<string>
+	<iostream>
+
+1414854755 source:c:\users\administrator\desktop\project-08\class-08.cpp
+	<iostream>
+	<cstdio>
+	<cstring>
+	<algorithm>
+	<stdlib.h>
+	<cmath>
+	<queue>
+	<vector>
+	<stack>
+	<set>
+	<cmath>
+	<sstream>
+	<fstream>
+	"class-08.h"
+

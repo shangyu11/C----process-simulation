@@ -1,0 +1,208 @@
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+#include<stdlib.h>
+#include<cmath>
+#include<queue>
+#include<vector>
+#include<stack>
+#include<set>
+#include<cmath>
+#include<sstream>
+#include<fstream>
+#include"class-08.h"
+using namespace std;
+
+const string PRINT = "print";
+const string WAIT = "waiting";
+const string RUN = "running";
+const string LOCK = "lock";
+const string UNLOCK = "unlock";
+const string END = "end";
+const string FIN = "finished";
+const string ERROR = "error";
+
+Program::Program(string file_name)//initilize the status of current program
+{
+   ifstream fin(file_name.c_str());
+   char line[1024];
+   string str_line;
+   while(fin.getline(line,sizeof(line)))
+   {
+        str_line.clear();
+        for(int i= 0 ; i < strlen(line) ; i++)
+        str_line+=line[i];
+        //cout<<str_line<<endl;
+        instructions_.push_back(str_line);
+   }
+   status_ = RUN;
+   instruction_index_ = 0;
+}
+
+string Program::get_instruction(bool lock_flag)//取出进程中的指令
+{
+    if(instruction_index_>=instructions_.size()) return "";
+    if(lock_flag) return WAIT;
+    return instructions_[instruction_index_++];
+}
+
+CPU::CPU(vector<Program>p_vc)//cpu的初始化
+{
+    programs_ = p_vc;
+    lock_flag_ = false;
+    program_index_ = 0;
+    memory_.clear();
+    current_instruction_ = "";
+    instruction_fields_.clear();
+}
+
+bool CPU::finished()//cpu结束
+{
+    int i;
+    for(i = 0 ; i < (int)programs_.size() ; i++)
+    {
+        if(programs_[i].get_status()==RUN||programs_[i].get_status()==WAIT) return false;
+    }
+    //cout<<programs_[i].get_status()<<endl;
+    return true;
+}
+
+void CPU::run()//cpu开始运行
+{
+    size_t pro_flag = program_index_;//时间片轮转标志
+    while(1)
+    {
+        if(CPU::finished()) break;//是否所有进程都已经完成
+       // cout<<pro_flag<<" "<<"start"<<endl;
+        current_instruction_ = programs_[pro_flag].get_instruction(lock_flag_);//当前进程请求使用CPU
+
+        if(current_instruction_==""||current_instruction_==WAIT)//请求不成功
+        {
+            if(current_instruction_==WAIT)
+                programs_[pro_flag].set_status(WAIT);
+            else
+                programs_[pro_flag].set_status(FIN);
+            current_instruction_ = programs_[program_index_].get_instruct 
+        }
+        else
+        program_index_ = pro_flag;
+
+        programs_[program_index_].set_status(RUN);//请求成功，设为running状态
+        //cout<<current_instruction_<<endl;
+        execute_instruction();//执行当前进程的指令
+        pro_flag ^= 1;//轮转
+
+    }
+}
+
+void CPU::split_instruction()//解析一个指令
+{
+    string sp_instruction;
+    sp_instruction.clear();//存储指令的每一个小部分
+    instruction_fields_.clear();
+    for(int i = 0; i < (int)current_instruction_.length() ; i++)//解析指令
+    {
+        if(current_instruction_[i]==' ')
+        {
+            //cout<<sp_instruction
+            if(!sp_instruction.empty())
+            {
+                instruction_fields_.push_back(sp_instruction);//放入指定区域
+                sp_instruction.clear();
+            }
+            continue;
+        }
+        sp_instruction+=current_instruction_[i];
+    }
+
+    if(!sp_instruction.empty())
+    {
+        instruction_fields_.push_back(sp_instruction);
+    }
+}
+
+bool CPU::is_print()//是否是输出指令
+{
+    if(instruction_fields_[0]==PRINT&&instruction_fields_.size()==2)
+        return true;
+    return false;
+}
+
+bool CPU::is_assignment()//是否分配指令
+{
+    if(instruction_fields_.size()==3&&instruction_fields_[1]=="=")
+        return true;
+    return false;
+}
+
+bool CPU::is_end()//指令是否结束
+{
+    if(instruction_fields_.size()==1&&instruction_fields_[0]==END)
+        return true;
+    return false;
+}
+
+bool CPU::is_lock()//是否是加锁指令
+{
+    if(instruction_fields_.size()==1&&instruction_fields_[0]==LOCK)
+        return true;
+    return false;
+}
+bool CPU::is_unlock()//是否是解锁指令
+{
+    if(instruction_fields_.size()==1&&instruction_fields_[0]==UNLOCK)
+        return true;
+    return false;
+}
+
+void CPU::execute_instruction()//执行一个解析后的指令
+{
+   // cout<<current_instruction_<<endl;
+    split_instruction();//首先解析指令
+   // cout<<instruction_fields_.size()<<endl;
+    if(is_print())
+    {
+        //cout<<",";
+        string exe_instr = instruction_fields_[1];
+        map<string,long>::iterator it;
+        it = memory_.find(exe_instr);
+        if(it==memory_.end())//找不着时设置为出错
+        {
+            programs_[program_index_].set_status(ERROR);
+            return ;
+        }
+
+        long var = memory_[exe_instr];
+        cout<<exe_instr<<" = "<<var<<endl;
+       // printf("program %d is print now !\n",program_index_);
+    }
+    else if(is_assignment())
+    {
+        string exe_instr = instruction_fields_[0];
+        memory_[exe_instr] = atoi(instruction_fields_[2].c_str());
+        //cout<<memory_[exe_instr]<<endl;
+        printf("program %d is assigning now!\n",program_index_);
+    }
+    else if(is_end())
+    {
+        programs_[program_index_].set_status(FIN);
+       // printf("program %d is finished!\n",program_index_);
+    }
+    else if(is_lock())
+    {
+        lock_flag_ = true;
+       // printf("i am locked by %d program!\n",program_index_);
+    }
+    else if(is_unlock())
+    {
+        lock_flag_ = false;
+        printf("i am unlocked by %d program!\n",program_index_);
+    }
+    else
+    {
+      //  printf("error\n");
+        programs_[program_index_].set_status(ERROR);
+    }
+}
+

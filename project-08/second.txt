@@ -1,0 +1,8 @@
+a = 4
+print a
+lock
+b = 123
+print b
+unlock
+end
+
